@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Glimpse – Hitta ditt drömjobb</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --lime:#CCFF00;
+  --orange:#FF6B00;
+  --pink:#F900FF;
+  --blue:#5200FF;
+  --bg:#000000;
+  --bg2:#080808;
+  --white:#FFFFFF;
+  --muted:rgba(255,255,255,.45);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:'DM Sans',sans-serif;overflow-x:hidden;cursor:none}
+
+/* Cursor */
+#cur{position:fixed;width:10px;height:10px;background:var(--lime);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .15s,height .15s;mix-blend-mode:difference}
+#cur-r{position:fixed;width:32px;height:32px;border:1px solid rgba(204,255,0,.35);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .3s,height .3s}
+
+/* Noise */
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");pointer-events:none;z-index:1000;opacity:.5}
+
+/* Blobs */
+.b{position:fixed;border-radius:50%;filter:blur(100px);pointer-events:none;z-index:0;opacity:.5}
+.b1{width:700px;height:700px;background:radial-gradient(circle,rgba(204,255,0,.12),transparent 65%);top:-300px;left:-200px;animation:d1 14s ease-in-out infinite}
+.b2{width:500px;height:500px;background:radial-gradient(circle,rgba(82,0,255,.2),transparent 65%);bottom:-200px;right:-150px;animation:d2 18s ease-in-out infinite}
+.b3{width:400px;height:400px;background:radial-gradient(circle,rgba(249,0,255,.1),transparent 65%);top:40%;left:30%;animation:d3 11s ease-in-out infinite}
+@keyframes d1{0%,100%{transform:translate(0,0)}50%{transform:translate(50px,40px)}}
+@keyframes d2{0%,100%{transform:translate(0,0)}50%{transform:translate(-40px,-50px)}}
+@keyframes d3{0%,100%{transform:translate(0,0)}50%{transform:translate(30px,-30px)}}
+
+/* Grid */
+.grid{position:fixed;inset:0;background-image:linear-gradient(rgba(204,255,0,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(204,255,0,.03) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:18px 40px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.85);backdrop-filter:blur(24px)}
+.n-logo{display:flex;align-items:center;gap:10px;font-family:'Syne',sans-serif;font-weight:800;font-size:19px;letter-spacing:-.5px}
+.n-pill{background:rgba(204,255,0,.1);border:1px solid rgba(204,255,0,.3);border-radius:30px;padding:5px 14px;font-size:11px;color:var(--lime);font-weight:600;letter-spacing:1px;display:flex;align-items:center;gap:6px}
+.n-dot{width:6px;height:6px;border-radius:50%;background:var(--lime);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* HERO */
+.hero{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:120px 24px 60px;text-align:center}
+
+.eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:30px;padding:8px 20px;font-size:11px;color:rgba(255,255,255,.6);font-weight:500;letter-spacing:2px;text-transform:uppercase;margin-bottom:36px;animation:up .7s ease forwards;opacity:0}
+
+h1{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(52px,9vw,96px);line-height:.95;letter-spacing:-3px;margin-bottom:28px;animation:up .7s .1s ease forwards;opacity:0}
+.t-lime{color:var(--lime)}
+.t-grad{background:linear-gradient(90deg,var(--lime),var(--orange),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+.hero-sub{font-size:clamp(15px,2vw,19px);color:var(--muted);max-width:500px;line-height:1.7;margin-bottom:48px;animation:up .7s .2s ease forwards;opacity:0;font-weight:300}
+
+/* Form */
+.form-wrap{animation:up .7s .3s ease forwards;opacity:0;width:100%;max-width:480px}
+.form-box{display:flex;gap:0;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:5px;transition:border-color .2s,box-shadow .2s}
+.form-box:focus-within{border-color:rgba(204,255,0,.4);box-shadow:0 0 0 3px rgba(204,255,0,.08)}
+.form-input{flex:1;background:transparent;border:none;outline:none;padding:13px 16px;font-family:'DM Sans',sans-serif;font-size:15px;color:white}
+.form-input::placeholder{color:rgba(255,255,255,.25)}
+.form-btn{background:var(--lime);border:none;border-radius:10px;padding:13px 22px;color:#000;font-family:'Syne',sans-serif;font-weight:800;font-size:14px;cursor:pointer;white-space:nowrap;transition:transform .1s,box-shadow .2s}
+.form-btn:hover{box-shadow:0 0 24px rgba(204,255,0,.4);transform:translateY(-1px)}
+.form-btn:active{transform:scale(.97)}
+.form-meta{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:14px;font-size:11px;color:rgba(255,255,255,.3);flex-wrap:wrap}
+
+/* Counter */
+.counter{margin-top:28px}
+.c-bar{display:inline-flex;align-items:center;gap:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:40px;padding:10px 20px}
+.c-avs{display:flex}.c-av{width:28px;height:28px;border-radius:50%;border:2px solid #000;margin-left:-8px;display:flex;align-items:center;justify-content:center;font-size:13px}.c-av:first-child{margin-left:0}
+.c-txt{font-size:13px;color:rgba(255,255,255,.5)}.c-txt strong{color:white}
+
+/* Success */
+.success{display:none;text-align:center;animation:up .5s ease forwards}
+.s-icon{font-size:56px;margin-bottom:12px}
+.s-title{font-family:'Syne',sans-serif;font-weight:800;font-size:26px;margin-bottom:8px;color:var(--lime)}
+.s-sub{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:20px}
+.s-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.s-btn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px 20px;font-size:13px;color:white;text-decoration:none;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .2s}
+.s-btn:hover{background:rgba(255,255,255,.12)}
+.s-btn-lime{background:rgba(204,255,0,.12);border-color:rgba(204,255,0,.3);color:var(--lime)}
+
+/* Phone */
+.phone-section{position:relative;z-index:1;display:flex;justify-content:center;padding:0 24px 60px}
+.phone{width:220px;background:#080808;border-radius:36px;border:1.5px solid rgba(204,255,0,.2);overflow:hidden;box-shadow:0 0 0 1px rgba(255,255,255,.04),0 40px 100px rgba(204,255,0,.1),0 20px 60px rgba(82,0,255,.15);animation:float 5s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-.5deg)}50%{transform:translateY(-14px) rotate(.5deg)}}
+.ph-notch{width:70px;height:5px;background:rgba(255,255,255,.1);border-radius:3px;margin:12px auto 14px}
+.ph-body{padding:0 12px 18px}
+.ph-hdr{font-family:'Syne',sans-serif;font-weight:800;font-size:12px;margin-bottom:10px;color:white}
+.ph-card{background:rgba(255,255,255,.05);border-radius:12px;padding:10px 12px;margin-bottom:7px;border-left:2px solid var(--lime)}
+.ph-card-t{font-size:10px;font-weight:700;margin-bottom:2px}
+.ph-card-s{font-size:8px;color:rgba(255,255,255,.4)}
+.ph-match{font-size:9px;color:var(--lime);font-weight:700;margin-top:3px}
+.ph-card2{border-left-color:var(--orange)}.ph-card2 .ph-match{color:var(--orange)}
+.ph-card3{border-left-color:var(--pink)}.ph-card3 .ph-match{color:var(--pink)}
+.ph-vid{background:rgba(204,255,0,.07);border:1px solid rgba(204,255,0,.15);border-radius:10px;padding:8px 10px;display:flex;align-items:center;gap:7px;margin-top:8px}
+.ph-play{width:24px;height:24px;background:var(--lime);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;flex-shrink:0;color:#000}
+.ph-vt{font-size:8px;color:rgba(255,255,255,.5)}
+
+/* MARQUEE */
+.marquee-wrap{position:relative;z-index:1;overflow:hidden;border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06);padding:14px 0;margin-bottom:0;background:rgba(255,255,255,.02)}
+.marquee{display:flex;gap:0;animation:marquee 20s linear infinite;white-space:nowrap}
+.marquee-item{display:inline-flex;align-items:center;gap:10px;padding:0 32px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:1px}
+.marquee-dot{width:5px;height:5px;border-radius:50%;background:var(--lime);opacity:.6}
+@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* FEATURES */
+.section{position:relative;z-index:1;padding:100px 24px;max-width:1100px;margin:0 auto}
+.s-label{font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:3px;margin-bottom:14px;text-align:center}
+.s-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(30px,5vw,52px);line-height:1.1;text-align:center;margin-bottom:60px}
+
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}
+.feat{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:24px;padding:28px;transition:transform .25s,border-color .25s;position:relative;overflow:hidden}
+.feat::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .3s}
+.feat:hover{transform:translateY(-5px)}
+.feat:hover::before{opacity:1}
+.feat-lime::before{background:linear-gradient(135deg,rgba(204,255,0,.06),transparent)}
+.feat-orange::before{background:linear-gradient(135deg,rgba(255,107,0,.06),transparent)}
+.feat-pink::before{background:linear-gradient(135deg,rgba(249,0,255,.06),transparent)}
+.feat:hover.feat-lime{border-color:rgba(204,255,0,.25)}
+.feat:hover.feat-orange{border-color:rgba(255,107,0,.25)}
+.feat:hover.feat-pink{border-color:rgba(249,0,255,.25)}
+.feat-ico{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:18px}
+.ico-lime{background:rgba(204,255,0,.12);border:1px solid rgba(204,255,0,.2)}
+.ico-orange{background:rgba(255,107,0,.12);border:1px solid rgba(255,107,0,.2)}
+.ico-pink{background:rgba(249,0,255,.12);border:1px solid rgba(249,0,255,.2)}
+.ico-blue{background:rgba(82,0,255,.15);border:1px solid rgba(82,0,255,.25)}
+.feat-t{font-family:'Syne',sans-serif;font-weight:700;font-size:17px;margin-bottom:8px}
+.feat-d{font-size:13.5px;color:var(--muted);line-height:1.65}
+
+/* STATS */
+.stats{position:relative;z-index:1;padding:60px 24px;max-width:900px;margin:0 auto}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;background:rgba(255,255,255,.06);border-radius:24px;overflow:hidden;border:1px solid rgba(255,255,255,.06)}
+.stat{background:#080808;padding:32px 24px;text-align:center}
+.stat-num{font-family:'Syne',sans-serif;font-weight:800;font-size:42px;line-height:1;margin-bottom:6px}
+.stat-lbl{font-size:13px;color:var(--muted)}
+
+/* STEPS */
+.steps-wrap{position:relative;z-index:1;padding:80px 24px;max-width:680px;margin:0 auto}
+.steps{display:flex;flex-direction:column;gap:0;margin-top:48px}
+.step{display:flex;gap:20px;position:relative}
+.step:not(:last-child)::after{content:'';position:absolute;left:19px;top:46px;width:1px;height:calc(100% - 16px);background:linear-gradient(180deg,rgba(204,255,0,.3),transparent)}
+.step-n{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:15px;flex-shrink:0;color:#000}
+.step-body{padding-bottom:40px}
+.step-t{font-family:'Syne',sans-serif;font-weight:700;font-size:18px;margin-bottom:6px}
+.step-d{font-size:14px;color:var(--muted);line-height:1.65}
+
+/* QUOTES */
+.quotes-wrap{position:relative;z-index:1;padding:80px 24px;max-width:1000px;margin:0 auto}
+.quotes-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:48px}
+.quote{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:24px;transition:border-color .2s}
+.quote:hover{border-color:rgba(204,255,0,.2)}
+.quote-t{font-size:14.5px;color:rgba(255,255,255,.75);line-height:1.7;margin-bottom:18px;font-style:italic}
+.quote-a{display:flex;align-items:center;gap:10px}
+.quote-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justifyContent:center;font-size:16px;flex-shrink:0}
+.quote-n{font-size:13px;font-weight:600}
+.quote-r{font-size:11px;color:rgba(255,255,255,.35);margin-top:2px}
+
+/* CTA SECTION */
+.cta-section{position:relative;z-index:1;padding:80px 24px 120px}
+.cta-inner{max-width:640px;margin:0 auto;text-align:center}
+.cta-box{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:32px;padding:64px 40px;position:relative;overflow:hidden}
+.cta-box::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(204,255,0,.08),transparent 60%);pointer-events:none}
+.cta-box h2{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(30px,5vw,48px);line-height:1.1;margin-bottom:14px;position:relative}
+.cta-box p{font-size:16px;color:var(--muted);margin-bottom:36px;line-height:1.65;position:relative}
+.cta-price{display:inline-block;background:rgba(204,255,0,.1);border:1px solid rgba(204,255,0,.2);border-radius:12px;padding:8px 20px;font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--lime);margin-bottom:28px;position:relative}
+
+/* FOOTER */
+footer{position:relative;z-index:1;padding:28px 40px;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.f-logo{display:flex;align-items:center;gap:8px;font-family:'Syne',sans-serif;font-weight:800;font-size:16px}
+.f-links{display:flex;gap:24px}
+.f-links a{font-size:13px;color:rgba(255,255,255,.3);text-decoration:none;transition:color .2s}
+.f-links a:hover{color:var(--lime)}
+.f-copy{font-size:12px;color:rgba(255,255,255,.2)}
+
+@keyframes up{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+.reveal{opacity:1;transform:translateY(0);transition:opacity .6s ease,transform .6s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+@media(max-width:768px){
+  #cur,#cur-r{display:none}
+  body{cursor:auto}
+  nav{padding:14px 18px}
+  .n-logo{font-size:16px}
+  .n-pill{font-size:10px;padding:4px 10px}
+  h1{font-size:clamp(38px,11vw,64px);letter-spacing:-2px}
+  .hero{padding:100px 18px 40px}
+  .hero-sub{font-size:15px;margin-bottom:36px}
+  .form-box{flex-direction:column;gap:8px;padding:8px;border-radius:16px}
+  .form-input{padding:14px 16px;border-radius:10px;background:rgba(255,255,255,.06)}
+  .form-btn{width:100%;padding:15px;border-radius:10px;font-size:15px}
+  .form-meta{gap:8px;font-size:10px}
+  .c-bar{padding:8px 14px}
+  .c-txt{font-size:12px}
+  .phone-section{padding:0 24px 60px}
+  .phone{width:180px}
+  .ph-card-t{font-size:9px}
+  .ph-card-s{font-size:7px}
+  .ph-match{font-size:8px}
+  .ph-hdr{font-size:11px}
+  .section{padding:60px 16px}
+  .s-title{font-size:clamp(26px,7vw,40px);margin-bottom:40px}
+  .feat-grid{grid-template-columns:1fr}
+  .feat{padding:22px}
+  .stats{padding:40px 16px}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .stat{padding:24px 16px}
+  .stat-num{font-size:34px}
+  .steps-wrap{padding:60px 16px}
+  .quotes-wrap{padding:60px 16px}
+  .quotes-grid{grid-template-columns:1fr}
+  .cta-section{padding:60px 16px 80px}
+  .cta-box{padding:36px 20px}
+  .cta-box h2{font-size:clamp(26px,7vw,38px)}
+  .cta-box p{font-size:14px}
+  footer{flex-direction:column;text-align:center;padding:24px 20px;gap:14px}
+  .f-links{flex-wrap:wrap;justify-content:center;gap:14px}
+  .eyebrow{font-size:9px;padding:6px 14px;margin-bottom:24px}
+  .marquee-item{font-size:11px;padding:0 20px}
+}
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="cur-r"></div>
+<div class="b b1"></div>
+<div class="b b2"></div>
+<div class="b b3"></div>
+<div class="grid"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="n-logo">
+    <svg width="28" height="28" viewBox="0 0 100 100" fill="none">
+      <defs><linearGradient id="lg" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#CCFF00"/><stop offset="100%" stop-color="#5200FF"/></linearGradient></defs>
+      <path d="M50 8C26 8 8 26 8 50c0 12 5 23 13 30V58c0-16 13-29 29-29 8 0 15 3 20 8" stroke="url(#lg)" stroke-width="10" stroke-linecap="round" fill="none"/>
+      <circle cx="50" cy="50" r="13" fill="url(#lg)"/>
+      <circle cx="50" cy="50" r="5.5" fill="black" opacity=".9"/>
+      <path d="M70 37c10 7 17 19 15 31-3 12-13 21-25 23" stroke="url(#lg)" stroke-width="10" stroke-linecap="round" fill="none"/>
+    </svg>
+    Glimpse
+  </div>
+  <div class="n-pill"><div class="n-dot"></div>Beta · Anmäl dig nu</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="eyebrow">✦ &nbsp; Jobbsökning är trasigt &nbsp;–&nbsp; vi fixar det &nbsp; ✦</div>
+
+  <h1>
+    <span class="t-grad">Vi ändrar</span><br/>
+    jobbsökning.<br/>
+    <span class="t-lime">För alltid.</span>
+  </h1>
+
+  <p class="hero-sub">AI matchar dig med rätt jobb varje morgon. Se insidan av företaget. Ansök med en video istället för ett tråkigt brev.</p>
+
+  <div class="form-wrap">
+    <div id="formWrap">
+      <div class="form-box">
+        <input class="form-input" type="email" id="emailInput" placeholder="din@email.se" autocomplete="email"/>
+        <button class="form-btn" onclick="signup('emailInput','formWrap','successWrap')">Gå med i waitlist →</button>
+      </div>
+      <div class="form-meta">
+        <span>🔒 Ingen spam</span>
+        <span style="opacity:.3">·</span>
+        <span>⚡ Beta-access först</span>
+        <span style="opacity:.3">·</span>
+        <span>🎁 30 dagar gratis</span>
+      </div>
+    </div>
+    <div class="success" id="successWrap">
+      <div class="s-icon">🎉</div>
+      <div class="s-title">Du är med!</div>
+      <p class="s-sub">Vi hör av oss när beta är redo.<br/>Dela med en vän – ju fler, desto snabbare lanserar vi.</p>
+      <div class="s-btns">
+        <a class="s-btn" href="https://twitter.com/intent/tweet?text=Jag+har+anmält+mig+till+Glimpse+–+appen+som+dödar+det+personliga+brevet+👁+glimpseapp.com" target="_blank">𝕏 Dela på X</a>
+        <button class="s-btn s-btn-lime" onclick="copyLink()" id="copyBtn">🔗 Kopiera länk</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="counter">
+    <div class="c-bar">
+      <div class="c-avs">
+        <div class="c-av" style="background:linear-gradient(135deg,#CCFF00,#5200FF)">😊</div>
+        <div class="c-av" style="background:linear-gradient(135deg,#FF6B00,#F900FF)">🙌</div>
+        <div class="c-av" style="background:linear-gradient(135deg,#5200FF,#CCFF00)">👋</div>
+        <div class="c-av" style="background:linear-gradient(135deg,#F900FF,#FF6B00)">✨</div>
+        <div class="c-av" style="background:linear-gradient(135deg,#CCFF00,#F900FF)">🔥</div>
+      </div>
+      <span class="c-txt"><strong id="cNum">247</strong> på listan redan</span>
+    </div>
+  </div>
+</section>
+
+<!-- PHONE -->
+<div class="phone-section">
+  <div class="phone">
+    <div class="ph-notch"></div>
+    <div class="ph-body">
+      <div class="ph-hdr">👋 Dina matchningar idag</div>
+      <div class="ph-card">
+        <div class="ph-card-t">Frontend Dev · Spotify</div>
+        <div class="ph-card-s">Stockholm · Hybrid · 52–62k kr/mån</div>
+        <div class="ph-match">🎯 97% match</div>
+      </div>
+      <div class="ph-card ph-card2">
+        <div class="ph-card-t">UX Designer · Klarna</div>
+        <div class="ph-card-s">Stockholm · 48–58k kr/mån</div>
+        <div class="ph-match">🎯 91% match</div>
+      </div>
+      <div class="ph-card ph-card3">
+        <div class="ph-card-t">Fullstack Dev · King</div>
+        <div class="ph-card-s">Stockholm · 55–68k kr/mån</div>
+        <div class="ph-match">🎯 85% match</div>
+      </div>
+      <div class="ph-vid">
+        <div class="ph-play">▶</div>
+        <div class="ph-vt">🎬 En dag på Spotify →</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee">
+    <span class="marquee-item"><span class="marquee-dot"></span>Inga personliga brev</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>AI-matchning</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Video-ansökan</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Kultur-videos</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>60 sekunder om dagen</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Gen Z-first</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Swipe-jobb</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Stockholm · Global</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Inga personliga brev</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>AI-matchning</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Video-ansökan</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Kultur-videos</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>60 sekunder om dagen</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Gen Z-first</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Swipe-jobb</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Stockholm · Global</span>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="section reveal">
+  <div class="s-label">Vad är Glimpse</div>
+  <h2 class="s-title">Allt du behöver.<br/><span class="t-lime">Ingenting du inte behöver.</span></h2>
+  <div class="feat-grid">
+    <div class="feat feat-lime reveal">
+      <div class="feat-ico ico-lime">🤖</div>
+      <div class="feat-t">AI matchar åt dig</div>
+      <div class="feat-d">Ladda upp ditt CV en gång. Varje morgon får du 3–5 jobb som faktiskt passar – matchade på dina erfarenheter, inte på nyckelord.</div>
+    </div>
+    <div class="feat feat-orange reveal">
+      <div class="feat-ico ico-orange">🎬</div>
+      <div class="feat-t">Se kulturen direkt</div>
+      <div class="feat-d">Företagen laddar upp en 30-sekunders video som visar hur en dag på jobbet ser ut. Du vet vad du säger ja till innan du söker.</div>
+    </div>
+    <div class="feat feat-pink reveal">
+      <div class="feat-ico ico-pink">🎥</div>
+      <div class="feat-t">Ansök med video</div>
+      <div class="feat-d">Glöm det personliga brevet. Spela in 45 sekunder där du är dig själv. AI ger dig exakt vad du ska säga för just det bolaget.</div>
+    </div>
+    <div class="feat feat-lime reveal">
+      <div class="feat-ico ico-blue">🔔</div>
+      <div class="feat-t">Se när de tittat</div>
+      <div class="feat-d">Du får en notis när ett företag sett din video. Inga gissningar. Inget svart hål. Du vet exakt var du är i processen hela tiden.</div>
+    </div>
+    <div class="feat feat-orange reveal">
+      <div class="feat-ico ico-lime">🔥</div>
+      <div class="feat-t">Bygg en streak</div>
+      <div class="feat-d">60 sekunder om dagen håller dig aktiv. Streak-systemet gör jobbsökning till en vana – inte ett projekt du skjuter upp.</div>
+    </div>
+    <div class="feat feat-pink reveal">
+      <div class="feat-ico ico-pink">👤</div>
+      <div class="feat-t">Din profilvideo</div>
+      <div class="feat-d">Skapa en profilvideo en gång. Företag hittar dig – inte tvärtom. Du är inte längre en ansökan. Du är en person.</div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats reveal">
+  <div class="stats-grid">
+    <div class="stat"><div class="stat-num" style="color:var(--lime)">97%</div><div class="stat-lbl">Toppmatch i beta</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--orange)">60s</div><div class="stat-lbl">Per dag är nog</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--pink)">39kr</div><div class="stat-lbl">Per månad</div></div>
+    <div class="stat"><div class="stat-num" style="color:white">0</div><div class="stat-lbl">Personliga brev</div></div>
+  </div>
+</div>
+
+<!-- STEPS -->
+<div class="steps-wrap">
+  <div class="s-label" style="text-align:center">Så funkar det</div>
+  <h2 class="s-title">Tre steg.<br/><span class="t-lime">Det är allt.</span></h2>
+  <div class="steps">
+    <div class="step reveal">
+      <div class="step-n" style="background:var(--lime)">1</div>
+      <div class="step-body">
+        <div class="step-t">Ladda upp ditt CV</div>
+        <div class="step-d">AI analyserar på 10 sekunder och hittar vad som gör dig unik. Spela in din profilvideo – 30 sek, var dig själv.</div>
+      </div>
+    </div>
+    <div class="step reveal">
+      <div class="step-n" style="background:var(--orange)">2</div>
+      <div class="step-body">
+        <div class="step-t">Få matchningar varje morgon</div>
+        <div class="step-d">Öppna appen, swipa jobb, se kultur-videos. Under 60 sekunder. AI har gjort grovjobbet åt dig medan du sov.</div>
+      </div>
+    </div>
+    <div class="step reveal">
+      <div class="step-n" style="background:var(--pink)">3</div>
+      <div class="step-body">
+        <div class="step-t">Spela in & skicka din video</div>
+        <div class="step-d">AI visar vad du ska säga för just det företaget. Spela in, få feedback, skicka. Rekryteraren ser vem du är – inte ett dokument.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QUOTES -->
+<div class="quotes-wrap">
+  <div style="text-align:center">
+    <div class="s-label">Tidiga användare</div>
+    <h2 class="s-title">De som testade<br/><span class="t-lime">vill inte gå tillbaka</span></h2>
+  </div>
+  <div class="quotes-grid">
+    <div class="quote reveal">
+      <div class="quote-t">"Sökte jobb i 3 månader utan resultat. Med Glimpse fick jag intervju på en vecka. Det känns nästan som fusk."</div>
+      <div class="quote-a">
+        <div class="quote-av" style="background:linear-gradient(135deg,#CCFF00,#5200FF)">👩</div>
+        <div><div class="quote-n">Emma, 23</div><div class="quote-r">Frontend-student, Stockholm</div></div>
+      </div>
+    </div>
+    <div class="quote reveal">
+      <div class="quote-t">"Kultur-videon sålde mig. Jag visste direkt om jag ville jobba där. Sparade mig från ett jobb jag hade haat."</div>
+      <div class="quote-a">
+        <div class="quote-av" style="background:linear-gradient(135deg,#FF6B00,#F900FF)">👨</div>
+        <div><div class="quote-n">Marcus, 26</div><div class="quote-r">UX Designer, Göteborg</div></div>
+      </div>
+    </div>
+    <div class="quote reveal">
+      <div class="quote-t">"Att skicka video istället för brev kändes läskigt först. Men rekryteraren sa att min video var det bästa hon sett. Got the job."</div>
+      <div class="quote-a">
+        <div class="quote-av" style="background:linear-gradient(135deg,#F900FF,#CCFF00)">👩</div>
+        <div><div class="quote-n">Lina, 24</div><div class="quote-r">Product Manager, Malmö</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <div class="cta-box reveal">
+      <div class="cta-price">39 kr / månad</div>
+      <h2>Redo att sluta<br/><span class="t-grad">scrolla LinkedIn?</span></h2>
+      <p>Beta-användare får 30 dagars gratis access och livstidsrabatt. Anmäl dig nu.</p>
+      <div style="max-width:420px;margin:0 auto">
+        <div class="form-box" id="ctaBox">
+          <input class="form-input" type="email" id="ctaEmail" placeholder="din@email.se"/>
+          <button class="form-btn" onclick="signup('ctaEmail','ctaBox','ctaSuccess')">Anmäl mig →</button>
+        </div>
+        <div class="success" id="ctaSuccess" style="margin-top:16px">
+          <div style="font-size:32px;margin-bottom:8px">✅</div>
+          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:var(--lime)">Du är med på listan!</div>
+        </div>
+      </div>
+      <p style="font-size:11px;color:rgba(255,255,255,.2);margin-top:16px;position:relative">Avbryt när som helst · Inga bindningstider</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="f-logo">
+    <svg width="22" height="22" viewBox="0 0 100 100" fill="none">
+      <path d="M50 8C26 8 8 26 8 50c0 12 5 23 13 30V58c0-16 13-29 29-29 8 0 15 3 20 8" stroke="#CCFF00" stroke-width="10" stroke-linecap="round" fill="none"/>
+      <circle cx="50" cy="50" r="13" fill="#CCFF00"/>
+      <circle cx="50" cy="50" r="5.5" fill="black"/>
+      <path d="M70 37c10 7 17 19 15 31-3 12-13 21-25 23" stroke="#CCFF00" stroke-width="10" stroke-linecap="round" fill="none"/>
+    </svg>
+    Glimpse
+  </div>
+  <div class="f-links">
+    <a href="#">Om oss</a>
+    <a href="#">För företag</a>
+    <a href="#">Kontakt</a>
+    <a href="/cdn-cgi/l/email-protection#1f777a755f787376726f6c7a7e6f6f317c7072"><span class="__cf_email__" data-cfemail="6a020f002a0d0603071a190f0b1a1a44090507">[email&#160;protected]</span></a>
+  </div>
+  <div class="f-copy">© 2025 Glimpse · Stockholm</div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// Cursor
+const cur=document.getElementById('cur'),curR=document.getElementById('cur-r');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+(function animR(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;curR.style.left=rx+'px';curR.style.top=ry+'px';requestAnimationFrame(animR);})();
+document.querySelectorAll('button,a,input').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cur.style.width='18px';cur.style.height='18px';curR.style.width='48px';curR.style.height='48px';});
+  el.addEventListener('mouseleave',()=>{cur.style.width='10px';cur.style.height='10px';curR.style.width='32px';curR.style.height='32px';});
+});
+
+// Counter
+let count=247;
+(function(){let n=180;const id=setInterval(()=>{n+=4;if(n>=count){n=count;clearInterval(id);}document.getElementById('cNum').textContent=n;},18);})();
+setInterval(()=>{if(Math.random()>.6){count++;document.getElementById('cNum').textContent=count;}},7000);
+
+// Signup
+function signup(inputId,formId,successId){
+  const v=document.getElementById(inputId).value;
+  if(!v||!v.includes('@')){
+    const el=document.getElementById(inputId);
+    el.style.color='rgba(255,100,100,.8)';
+    setTimeout(()=>el.style.color='',1500);
+    return;
+  }
+  count++;document.getElementById('cNum').textContent=count;
+  document.getElementById(formId).style.display='none';
+  const s=document.getElementById(successId);
+  s.style.display='block';
+}
+
+function copyLink(){
+  navigator.clipboard.writeText('https://glimpseapp.com').then(()=>{
+    const b=document.getElementById('copyBtn');
+    b.textContent='✅ Kopierat!';
+    setTimeout(()=>b.textContent='🔗 Kopiera länk',2000);
+  });
+}
+
+// Reveal on scroll - elements start visible
+document.querySelectorAll('.reveal').forEach(el => {
+  el.style.opacity = '1';
+  el.style.transform = 'translateY(0)';
+});
+
+// Enter key
+['emailInput','ctaEmail'].forEach(id=>{
+  const el=document.getElementById(id)

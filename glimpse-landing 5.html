@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Glimpse – Framtidens jobbsökning</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;overflow-x:hidden;background:#3b4fd8}
+
+/* MESH GRADIENT */
+.hero-bg{
+  position:fixed;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse 80% 100% at -5% 50%, #2563eb 0%, #3b82f6 30%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 50% 50%, #7c3aed 0%, #8b5cf6 40%, transparent 65%),
+    radial-gradient(ellipse 70% 90% at 105% 40%, #ec4899 0%, #f472b6 30%, transparent 55%),
+    radial-gradient(ellipse 50% 60% at 80% 80%, #db2777 0%, transparent 50%);
+  background-color:#3b4fd8;
+  animation:meshAnim 12s ease-in-out infinite alternate;
+}
+@keyframes meshAnim{
+  0%{filter:hue-rotate(0deg) brightness(1)}
+  50%{filter:hue-rotate(5deg) brightness(1.05)}
+  100%{filter:hue-rotate(-5deg) brightness(.98)}
+}
+
+/* STARS */
+#starCanvas{position:fixed;inset:0;z-index:2;pointer-events:none;}
+
+/* ALL CONTENT ABOVE STARS */
+nav,section,.marquee-wrap,footer{position:relative;z-index:10;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:20px 48px;display:flex;align-items:center;justify-content:space-between}
+.n-logo{font-family:'Inter',sans-serif;font-weight:800;font-size:22px;color:white;letter-spacing:-.5px}
+.n-logo span{color:#CCFF00}
+.n-links{display:flex;gap:32px;align-items:center}
+.n-links a{font-size:11px;color:rgba(255,255,255,.6);text-decoration:none;font-weight:500;letter-spacing:.5px;text-transform:uppercase;transition:color .2s}
+.n-links a:hover{color:white}
+.n-cta{background:white;color:#000;border:none;border-radius:30px;padding:10px 22px;font-family:'Inter',sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase;letter-spacing:.5px;transition:transform .15s,background .2s}
+.n-cta:hover{background:#CCFF00;transform:translateY(-1px)}
+
+/* HERO */
+.hero{position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:120px 48px 80px;text-align:center;z-index:10;}
+
+/* ✦ LOGO */
+.glimpse-star{
+  font-size:clamp(52px,9vw,88px);
+  color:#CCFF00;
+  line-height:1;
+  margin-bottom:22px;
+  display:block;
+  filter:drop-shadow(0 0 20px #CCFF00cc);
+  animation:starSpin 4s ease-in-out infinite;
+}
+@keyframes starSpin{
+  0%,100%{transform:scale(1) rotate(0deg);filter:drop-shadow(0 0 16px #CCFF00aa)}
+  50%{transform:scale(1.1) rotate(15deg);filter:drop-shadow(0 0 36px #CCFF00)}
+}
+
+.eyebrow{font-size:11px;color:rgba(255,255,255,.55);letter-spacing:3px;text-transform:uppercase;margin-bottom:28px;font-weight:500}
+h1{font-family:'Inter',sans-serif;font-weight:800;font-size:clamp(36px,7vw,72px);line-height:.95;letter-spacing:-3px;color:white;margin-bottom:48px;position:relative;z-index:1}
+.grad-text{background:linear-gradient(90deg,#CCFF00,#FF6B00,#F900FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+/* FORM */
+.form-wrap{position:relative;z-index:1;width:100%;max-width:500px}
+.form-box{display:flex;background:white;border-radius:50px;padding:6px;box-shadow:0 8px 40px rgba(0,0,0,.3)}
+.form-box:focus-within{box-shadow:0 8px 40px rgba(204,255,0,.2)}
+.form-input{flex:1;background:transparent;border:none;outline:none;padding:14px 20px;font-family:'DM Sans',sans-serif;font-size:15px;color:#000;border-radius:50px}
+.form-input::placeholder{color:#aaa}
+.form-btn{background:#000;border:none;border-radius:40px;padding:14px 28px;color:white;font-family:'Inter',sans-serif;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;letter-spacing:.5px;text-transform:uppercase;transition:background .2s,transform .1s}
+.form-btn:hover{background:#CCFF00;color:#000}
+.form-btn:active{transform:scale(.97)}
+.form-note{margin-top:14px;font-size:12px;color:rgba(255,255,255,.35);text-align:center}
+
+/* SUCCESS */
+.success{display:none;text-align:center}
+.s-title{font-family:'Inter',sans-serif;font-weight:800;font-size:28px;color:white;margin-bottom:8px}
+.s-sub{font-size:14px;color:rgba(255,255,255,.5);margin-bottom:20px;line-height:1.6}
+.s-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.s-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:10px 20px;font-size:13px;color:white;text-decoration:none;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .2s}
+.s-btn:hover{background:rgba(255,255,255,.2)}
+.s-btn-lime{background:rgba(204,255,0,.15);border-color:rgba(204,255,0,.4);color:#CCFF00}
+
+/* COUNTER */
+.counter{margin-top:28px;position:relative;z-index:1;display:flex;justify-content:center}
+.c-bar{display:inline-flex;align-items:center;gap:10px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:40px;padding:9px 18px;backdrop-filter:blur(10px)}
+.c-avs{display:flex}
+.c-av{width:26px;height:26px;border-radius:50%;border:2px solid rgba(255,255,255,.3);margin-left:-7px;display:flex;align-items:center;justify-content:center;font-size:12px}
+.c-av:first-child{margin-left:0}
+.c-txt{font-size:12px;color:rgba(255,255,255,.6)}.c-txt strong{color:white}
+
+/* MARQUEE */
+.marquee-wrap{overflow:hidden;padding:16px 0;background:rgba(255,255,255,.06);border-top:1px solid rgba(255,255,255,.12);border-bottom:1px solid rgba(255,255,255,.12);backdrop-filter:blur(10px)}
+.marquee{display:flex;animation:mq 22s linear infinite;white-space:nowrap}
+.mq-item{display:inline-flex;align-items:center;gap:10px;padding:0 28px;font-family:'Inter',sans-serif;font-weight:700;font-size:12px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:1px}
+.mq-dot{width:4px;height:4px;border-radius:50%;background:#CCFF00}
+@keyframes mq{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* VISUALS */
+.visuals{background:transparent;padding:40px 48px}
+.vis-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;align-items:center;max-width:1100px;margin:0 auto}
+.vis-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:24px;padding:24px}
+.vis-card.center{background:transparent;border:none;padding:0;display:flex;flex-direction:column;align-items:center;gap:14px}
+.phone{width:200px;background:rgba(255,255,255,.04);border-radius:34px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.3),0 0 0 1px rgba(255,255,255,.07);animation:float2 5s ease-in-out infinite}
+@keyframes float1{0%,100%{transform:translateY(0) rotate(-.5deg)}50%{transform:translateY(-10px) rotate(.5deg)}}
+@keyframes float2{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+@keyframes float3{0%,100%{transform:translateY(-6px) rotate(.3deg)}50%{transform:translateY(6px) rotate(-.3deg)}}
+.ph-notch{width:60px;height:5px;background:rgba(255,255,255,.1);border-radius:3px;margin:10px auto 12px}
+.ph-body{padding:0 12px 16px}
+.ph-hdr{font-family:'Inter',sans-serif;font-weight:800;font-size:10px;color:white;margin-bottom:8px}
+.ph-card{background:rgba(255,255,255,.07);border-radius:10px;padding:9px 11px;margin-bottom:6px;border-left:2px solid #CCFF00}
+.ph-card-t{font-size:9px;font-weight:700;color:white}
+.ph-card-s{font-size:7px;color:rgba(255,255,255,.35);margin-top:1px}
+.ph-match{font-size:8px;color:#CCFF00;font-weight:700;margin-top:2px}
+.ph-c2{border-left-color:#FF6B00}.ph-c2 .ph-match{color:#FF6B00}
+.ph-c3{border-left-color:#F900FF}.ph-c3 .ph-match{color:#F900FF}
+.swipe-btns{display:flex;gap:8px}
+.swipe-no{background:rgba(255,68,68,.15);border:1px solid rgba(255,68,68,.3);border-radius:20px;padding:7px 16px;font-size:11px;color:#ff6b6b;font-weight:700}
+.swipe-yes{background:#CCFF00;border-radius:20px;padding:7px 16px;font-size:11px;color:#000;font-weight:700}
+.cv-bar{height:7px;background:rgba(255,255,255,.08);border-radius:4px;margin-bottom:8px;overflow:hidden}
+.cv-fill{height:100%;border-radius:4px}
+.vid-screen{background:rgba(255,255,255,.08);border-radius:14px;height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:14px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.1)}
+.vid-screen::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(204,255,0,.1),rgba(249,0,255,.1))}
+.rec-badge{position:absolute;top:8px;right:8px;display:flex;align-items:center;gap:4px;background:rgba(255,0,0,.85);border-radius:8px;padding:3px 8px}
+.rec-dot{width:5px;height:5px;border-radius:50%;background:white;animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* FEATURES */
+.features{background:transparent;padding:40px 48px;max-width:1100px;margin:0 auto}
+.feat-label{font-size:11px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:3px;margin-bottom:16px;text-align:center}
+.feat-title{font-family:'Inter',sans-serif;font-weight:800;font-size:clamp(32px,5vw,52px);color:white;text-align:center;margin-bottom:32px;line-height:1.1}
+.feats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.feat{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:24px;padding:32px;transition:transform .25s,border-color .25s,background .25s}
+.feat:hover{transform:translateY(-6px);border-color:rgba(204,255,0,.2);background:rgba(255,255,255,.07)}
+.feat-ico{font-size:36px;margin-bottom:18px}
+.feat-t{font-family:'Inter',sans-serif;font-weight:700;font-size:18px;color:white;margin-bottom:8px}
+.feat-d{font-size:13.5px;color:rgba(255,255,255,.45);line-height:1.65}
+
+/* CTA */
+.cta-section{background:rgba(0,0,0,.1);backdrop-filter:blur(10px);padding:100px 48px;text-align:center}
+.cta-inner{max-width:600px;margin:0 auto}
+.cta-inner h2{font-family:'Inter',sans-serif;font-weight:800;font-size:clamp(36px,6vw,60px);color:white;line-height:1;margin-bottom:16px;letter-spacing:-2px}
+.cta-inner p{font-size:16px;color:rgba(255,255,255,.45);margin-bottom:40px}
+.price{display:inline-block;background:rgba(204,255,0,.1);border:1px solid rgba(204,255,0,.25);border-radius:30px;padding:7px 20px;font-family:'Inter',sans-serif;font-weight:800;font-size:16px;color:#CCFF00;margin-bottom:28px}
+
+/* FOOTER */
+footer{background:rgba(0,0,0,.1);padding:28px 48px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;border-top:1px solid rgba(255,255,255,.06)}
+.f-logo{font-family:'Inter',sans-serif;font-weight:800;font-size:18px;color:white}
+.f-logo span{color:#CCFF00}
+.f-links{display:flex;gap:24px}
+.f-links a{font-size:12px;color:rgba(255,255,255,.3);text-decoration:none;transition:color .2s}
+.f-links a:hover{color:#CCFF00}
+.f-copy{font-size:12px;color:rgba(255,255,255,.2)}
+
+@keyframes up{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.au{animation:up .7s ease forwards;opacity:0}
+.d1{animation-delay:.1s}.d2{animation-delay:.2s}.d3{animation-delay:.3s}
+
+@media(max-width:768px){
+  nav{padding:16px 20px}
+  .n-links{display:none}
+  .hero{padding:100px 20px 40px;min-height:auto}
+  h1{letter-spacing:-2px}
+  .form-box{flex-direction:column;border-radius:16px;padding:8px;gap:8px}
+  .form-input{border-radius:10px}
+  .form-btn{border-radius:10px;padding:14px;width:100%}
+  .visuals{padding:16px 20px}
+  .vis-grid{grid-template-columns:1fr;gap:10px}
+  .vis-card.center{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:24px;padding:16px;align-items:center}
+  .vid-screen{height:80px}
+  .vis-card{padding:16px}
+  .features{display:none}
+  .cta-section{padding:80px 20px 20px}
+  footer{flex-direction:column;text-align:center;padding:24px 20px}
+  .f-links{flex-wrap:wrap;justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<div class="hero-bg"></div>
+<canvas id="starCanvas"></canvas>
+
+<nav>
+  <div class="n-logo">Glimpse<span>.</span></div>
+  <div class="n-links">
+    <a href="#hur">Hur det funkar</a>
+    <a href="#features">Features</a>
+    <a href="mailto:hej@glimpseapp.com">Kontakt</a>
+    <button class="n-cta" onclick="document.getElementById('emailInput').focus()">Anmäl dig</button>
+  </div>
+</nav>
+
+<section class="hero">
+  <span class="glimpse-star au">&#10022;</span>
+  <p class="eyebrow au">Framtidens jobbsökning är redan här</p>
+  <h1 class="au d1">
+    VI ÄNDRAR<br/>
+    JOBBSÖKNING.<br/>
+    <span class="grad-text">FÖR ALLTID.</span>
+  </h1>
+  <div class="form-wrap au d2">
+    <div id="formWrap">
+      <div class="form-box">
+        <input class="form-input" type="email" id="emailInput" placeholder="din@email.se"/>
+        <button class="form-btn" onclick="signup()">Gå med gratis →</button>
+      </div>
+      <p class="form-note">🔒 Ingen spam &nbsp;·&nbsp; 🎁 30 dagar gratis &nbsp;·&nbsp; ⚡ Beta-access först</p>
+    </div>
+    <div class="success" id="successWrap">
+      <div style="font-size:52px;margin-bottom:12px">🎉</div>
+      <div class="s-title">Du är med!</div>
+      <p class="s-sub">Vi hör av oss när beta är redo.<br/>Dela med en vän och lansera snabbare.</p>
+      <div class="s-btns">
+        <a class="s-btn" href="https://twitter.com/intent/tweet?text=Jobbsökning+förändrades+precis.+Kolla+Glimpse+glimpseapp.com" target="_blank">𝕏 Dela på X</a>
+        <button class="s-btn s-btn-lime" onclick="copyLink()" id="copyBtn">🔗 Kopiera länk</button>
+      </div>
+    </div>
+  </div>
+  <div class="counter au d3">
+    <div class="c-bar">
+      <div class="c-avs">
+        <div class="c-av" style="background:linear-gradient(135deg,#CCFF00,#5200FF)">😊</div>
+        <div class="c-av" style="background:linear-gradient(135deg,#FF6B00,#F900FF)">🙌</div>
+        <div class="c-av" style="background:linear-gradient(135deg,#F900FF,#CCFF00)">👋</div>
+        <div class="c-av" style="background:linear-gradient(135deg,#5200FF,#FF6B00)">✨</div>
+      </div>
+      <span class="c-txt"><strong id="cNum">247</strong> på listan redan</span>
+    </div>
+  </div>
+</section>
+
+<div class="marquee-wrap">
+  <div class="marquee">
+    <span class="mq-item"><span class="mq-dot"></span>Inga personliga brev</span>
+    <span class="mq-item"><span class="mq-dot"></span>AI-matchning</span>
+    <span class="mq-item"><span class="mq-dot"></span>Video-ansökan</span>
+    <span class="mq-item"><span class="mq-dot"></span>Se insidan av företaget</span>
+    <span class="mq-item"><span class="mq-dot"></span>60 sekunder om dagen</span>
+    <span class="mq-item"><span class="mq-dot"></span>Gen Z-first</span>
+    <span class="mq-item"><span class="mq-dot"></span>Stockholm · Global</span>
+    <span class="mq-item"><span class="mq-dot"></span>Inga personliga brev</span>
+    <span class="mq-item"><span class="mq-dot"></span>AI-matchning</span>
+    <span class="mq-item"><span class="mq-dot"></span>Video-ansökan</span>
+    <span class="mq-item"><span class="mq-dot"></span>Se insidan av företaget</span>
+    <span class="mq-item"><span class="mq-dot"></span>60 sekunder om dagen</span>
+    <span class="mq-item"><span class="mq-dot"></span>Gen Z-first</span>
+    <span class="mq-item"><span class="mq-dot"></span>Stockholm · Global</span>
+  </div>
+</div>
+
+<section id="hur" class="visuals">
+  <div class="vis-grid">
+    <div class="vis-card" style="animation:float1 4s ease-in-out infinite">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
+        <div style="width:44px;height:44px;background:#CCFF00;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px">📄</div>
+        <div>
+          <p style="font-family:'Inter',sans-serif;font-weight:800;font-size:14px;color:white">Ditt CV</p>
+          <p style="font-size:11px;color:rgba(255,255,255,.35)">Laddas upp en gång</p>
+        </div>
+      </div>
+      <div class="cv-bar"><div class="cv-fill" style="width:85%;background:linear-gradient(90deg,#CCFF00,#FF6B00)"></div></div>
+      <div class="cv-bar"><div class="cv-fill" style="width:65%;background:linear-gradient(90deg,#FF6B00,#F900FF)"></div></div>
+      <div class="cv-bar" style="margin-bottom:18px"><div class="cv-fill" style="width:75%;background:linear-gradient(90deg,#F900FF,#5200FF)"></div></div>
+      <div style="background:rgba(204,255,0,.1);border:1px solid rgba(204,255,0,.2);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px">
+        <span style="font-size:18px">🤖</span>
+        <div>
+          <p style="font-size:11px;font-weight:700;color:#CCFF00">AI analyserar på 10 sek</p>
+          <p style="font-size:10px;color:rgba(255,255,255,.35);margin-top:2px">Hittar vad som gör dig unik</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="vis-card center">
+      <div class="phone">
+        <div class="ph-notch"></div>
+        <div class="ph-body">
+          <div class="ph-hdr">👋 Dina matchningar idag</div>
+          <div class="ph-card"><div class="ph-card-t">Frontend Dev · Spotify</div><div class="ph-card-s">Stockholm · Hybrid · 52–62k/mån</div><div class="ph-match">🎯 97% match</div></div>
+          <div class="ph-card ph-c2"><div class="ph-card-t">UX Designer · Klarna</div><div class="ph-card-s">Stockholm · 48–58k/mån</div><div class="ph-match">🎯 91% match</div></div>
+          <div class="ph-card ph-c3"><div class="ph-card-t">Fullstack Dev · King</div><div class="ph-card-s">Stockholm · 55–68k/mån</div><div class="ph-match">🎯 85% match</div></div>
+        </div>
+      </div>
+      <div class="swipe-btns">
+        <div class="swipe-no">👎 Inte nu</div>
+        <div class="swipe-yes">👍 Intresserad</div>
+      </div>
+    </div>
+
+    <div class="vis-card" style="animation:float3 4.5s ease-in-out infinite">
+      <div class="vid-screen">
+        <span style="font-size:36px;position:relative">🎥</span>
+        <div class="rec-badge"><div class="rec-dot"></div><span style="font-size:9px;color:white;font-weight:700">REC</span></div>
+        <div style="position:absolute;bottom:8px;left:8px;right:8px;background:rgba(0,0,0,.6);border-radius:8px;padding:5px 10px"><p style="font-size:9px;color:white">Din video-ansökan · 0:38</p></div>
+      </div>
+      <p style="font-size:10px;color:rgba(255,255,255,.5);margin-bottom:6px">Istället för ett personligt brev –<br/>spela in dig själv på 45 sek</p>
+      <div style="background:rgba(204,255,0,.08);border:1px solid rgba(204,255,0,.2);border-radius:10px;padding:8px 12px;margin-bottom:8px">
+        <p style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:6px">🤖 AI föreslår vad du ska säga:</p>
+        <p style="font-size:11px;color:rgba(255,255,255,.7);margin-bottom:3px">✅ Berätta om din erfarenhet</p>
+        <p style="font-size:11px;color:rgba(255,255,255,.7)">✅ Varför just det här företaget</p>
+      </div>
+      <div style="background:#CCFF00;border-radius:10px;padding:10px;text-align:center;font-family:'Inter',sans-serif;font-weight:800;font-size:12px;color:#000;cursor:pointer">⏺ Spela in nu</div>
+    </div>
+  </div>
+</section>
+
+<section id="features" class="features">
+  <p class="feat-label">Vad är Glimpse</p>
+  <h2 class="feat-title">Allt du behöver.<br/><span class="grad-text">Ingenting du inte behöver.</span></h2>
+  <div class="feats-grid">
+    <div class="feat"><div class="feat-ico">🤖</div><div class="feat-t">AI matchar åt dig</div><div class="feat-d">Ladda upp CV en gång. Få perfekta matchningar varje morgon. Inga nyckelord, inga gissningar.</div></div>
+    <div class="feat"><div class="feat-ico">🎬</div><div class="feat-t">Se insidan av företaget</div><div class="feat-d">30 sek video från teamet. Du vet exakt vad du säger ja till innan du ens söker.</div></div>
+    <div class="feat"><div class="feat-ico">🎥</div><div class="feat-t">Ansök med video</div><div class="feat-d">Glöm personliga brevet. 45 sek, AI-tips, skicka. Rekryteraren ser vem du faktiskt är.</div></div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="cta-inner">
+    <div class="price">39 kr / månad</div>
+    <h2>Redo att testa<br/>framtiden?</h2>
+    <p>Beta-användare får 30 dagar gratis och livstidsrabatt.</p>
+    <div style="max-width:460px;margin:0 auto">
+      <div class="form-box" id="ctaBox">
+        <input class="form-input" type="email" id="ctaEmail" placeholder="din@email.se"/>
+        <button class="form-btn" onclick="signupCta()">Anmäl mig →</button>
+      </div>
+      <div id="ctaSuccess" style="display:none;margin-top:20px">
+        <p style="font-family:'Inter',sans-serif;font-weight:800;font-size:22px;color:#CCFF00">✅ Du är med på listan!</p>
+      </div>
+    </div>
+    <p style="font-size:11px;color:rgba(255,255,255,.2);margin-top:16px">Avbryt när som helst · Inga bindningstider</p>
+  </div>
+</section>
+
+<footer>
+  <div class="f-logo">Glimpse<span>.</span></div>
+  <div class="f-links">
+    <a href="#features">Features</a>
+    <a href="#hur">Hur det funkar</a>
+    <a href="mailto:hej@glimpseapp.com">hej@glimpseapp.com</a>
+  </div>
+  <div class="f-copy">© 2025 Glimpse · Stockholm</div>
+</footer>
+
+<script>
+// BLINKANDE STJÄRNOR
+(function(){
+  var canvas = document.getElementById('starCanvas');
+  var ctx = canvas.getContext('2d');
+  var stars = [];
+
+  function resize(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+
+  function createStars(){
+    stars = [];
+    var n = Math.floor((canvas.width * canvas.height) / 5500);
+    for(var i = 0; i < n; i++){
+      var sz = Math.random() * 1.8 + 0.4;
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: sz,
+        opacity: Math.random() * 0.5 + 0.5,
+        phase: Math.random() * 6.28,
+        speed: 0.3 + Math.random() * 1.0,
+        lime: Math.random() > 0.92
+      });
+    }
+  }
+
+  var t = 0;
+  function draw(){
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    t += 0.018;
+    for(var i = 0; i < stars.length; i++){
+      var s = stars[i];
+      var flicker = (Math.sin(t * s.speed + s.phase) + 1) / 2;
+      var alpha = s.opacity * (0.2 + 0.8 * flicker);
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = s.lime ? '#CCFF00' : '#ffffff';
+      if(s.size > 1.1){
+        ctx.shadowBlur = s.size * 7;
+        ctx.shadowColor = s.lime ? '#CCFF00' : 'rgba(255,255,255,1)';
+      }
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.size, 0, 6.28);
+      ctx.fill();
+      ctx.restore();
+    }
+    requestAnimationFrame(draw);
+  }
+
+  resize();
+  createStars();
+  draw();
+  window.addEventListener('resize', function(){ resize(); createStars(); });
+})();
+
+// COUNTER
+var count = 247;
+(function(){
+  var n = 180;
+  var id = setInterval(function(){
+    n += 4;
+    if(n >= count){ n = count; clearInterval(id); }
+    document.getElementById('cNum').textContent = n;
+  }, 18);
+})();
+setInterval(function(){
+  if(Math.random() > .6){ count++; document.getElementById('cNum').textContent = count; }
+}, 8000);
+
+function signup(){
+  var v = document.getElementById('emailInput').value;
+  if(!v || v.indexOf('@') < 0){
+    document.getElementById('emailInput').style.outline = '2px solid #ff4444';
+    setTimeout(function(){ document.getElementById('emailInput').style.outline = ''; }, 1500);
+    return;
+  }
+  count++;
+  document.getElementById('cNum').textContent = count;
+  document.getElementById('formWrap').style.display = 'none';
+  document.getElementById('successWrap').style.display = 'block';
+}
+
+function signupCta(){
+  var v = document.getElementById('ctaEmail').value;
+  if(!v || v.indexOf('@') < 0){
+    document.getElementById('ctaEmail').style.outline = '2px solid #ff4444';
+    setTimeout(function(){ document.getElementById('ctaEmail').style.outline = ''; }, 1500);
+    return;
+  }
+  document.getElementById('ctaBox').style.display = 'none';
+  document.getElementById('ctaSuccess').style.display = 'block';
+}
+
+function copyLink(){
+  navigator.clipboard.writeText('https://glimpseapp.com').then(function(){
+    var b = document.getElementById('copyBtn');
+    b.textContent = '✅ Kopierat!';
+    setTimeout(function(){ b.textContent = '🔗 Kopiera länk'; }, 2000);
+  });
+}
+</script>
+</body>
+</html>
